@@ -63,22 +63,25 @@
   function hat(at,open=false){const s=audioCtx.createBufferSource(),f=audioCtx.createBiquadFilter(),g=audioCtx.createGain();s.buffer=noiseBuffer;f.type='highpass';f.frequency.value=7000;envGain(g,at,open?.12:.055,open?.18:.055);s.connect(f);f.connect(g);g.connect(master);s.start(at);s.stop(at+(open?.2:.07))}
   function tone(freq,at,dur,type='sawtooth',vol=.08){const o=audioCtx.createOscillator(),f=audioCtx.createBiquadFilter(),g=audioCtx.createGain();o.type=type;o.frequency.setValueAtTime(freq,at);f.type='lowpass';f.frequency.value=type==='sawtooth'?1300:2600;envGain(g,at,vol,dur);o.connect(f);f.connect(g);g.connect(master);o.start(at);o.stop(at+dur+.02)}
   function musicBeat(){if(!audioCtx||audioCtx.state!=='running')return;const at=audioCtx.currentTime+.015,s=step%16; if(s%4===0)kick(at);if(s%2===0)hat(at,s%4===2);if(s%4===2)tone([110,123.47,98,130.81][Math.floor(s/4)],at,.22,'triangle',.13);if([0,4,8,12].includes(s)){const chord=[[220,261.63,329.63],[196,246.94,293.66],[174.61,220,261.63],[196,246.94,311.13]][Math.floor(s/4)];chord.forEach((f,i)=>tone(f,at+i*.012,.34,'sawtooth',.035))}if(s%4===1||s%4===3)tone([440,523.25,392,493.88][Math.floor(s/4)],at,.09,'square',.025);step++}
-  $('musicToggle').onclick=async()=>{
+  $('musicToggle').addEventListener('click',async()=>{
     try{
-      if(!audioCtx)initAudio();await audioCtx.resume();
+      if(!audioCtx)initAudio();
+      if(audioCtx.state!=='running')await audioCtx.resume();
       if(musicTimer){clearInterval(musicTimer);musicTimer=null;$('musicToggle').textContent='▶ 播放派对音乐';$('musicStatus').textContent='音乐已暂停'}
-      else{musicBeat();musicTimer=setInterval(musicBeat,125);$('musicToggle').textContent='Ⅱ 暂停音乐';$('musicStatus').textContent='原创电子舞曲正在播放'}
-    }catch(e){$('musicStatus').textContent=e.message||'音乐启动失败，请再点一次播放'}
-  };
+      else{step=0;musicBeat();musicTimer=setInterval(musicBeat,125);$('musicToggle').textContent='Ⅱ 暂停音乐';$('musicStatus').textContent='原创电子舞曲正在播放 · 音量可调'}
+    }catch(e){$('musicStatus').textContent='音乐启动失败：'+(e.message||'请再点播放，并确认手机媒体音量已打开')}
+  });
+  // iPhone/iPad may suspend WebAudio after screen rotation or app switching.
+  document.addEventListener('visibilitychange',()=>{if(!document.hidden&&audioCtx&&musicTimer&&audioCtx.state!=='running')audioCtx.resume().catch(()=>{});});
   $('musicVolume').oninput=()=>{if(master)master.gain.setTargetAtTime(Number($('musicVolume').value)/100*.32,audioCtx.currentTime,.04)};
 
   window.addEventListener('keydown',e=>{keys[e.key.toLowerCase()]=true;if(['ArrowUp','ArrowDown','ArrowLeft','ArrowRight',' '].includes(e.key))e.preventDefault()});
   window.addEventListener('keyup',e=>keys[e.key.toLowerCase()]=false);
   function setupJoystick(){
     const base=$('joystick'),stick=$('stick');let active=false;
-    function move(e){const r=base.getBoundingClientRect(),cx=r.left+r.width/2,cy=r.top+r.height/2;let dx=e.clientX-cx,dy=e.clientY-cy,len=Math.hypot(dx,dy),max=34;if(len>max){dx=dx/len*max;dy=dy/len*max}joystick.x=dx/max;joystick.y=dy/max;stick.style.transform=`translate(${dx}px,${dy}px)`}
-    base.addEventListener('pointerdown',e=>{active=true;base.setPointerCapture(e.pointerId);move(e)});base.addEventListener('pointermove',e=>{if(active)move(e)});
-    function end(){active=false;joystick={x:0,y:0};stick.style.transform='translate(0,0)'}base.addEventListener('pointerup',end);base.addEventListener('pointercancel',end);
+    function move(e){const r=base.getBoundingClientRect(),cx=r.left+r.width/2,cy=r.top+r.height/2;let dx=e.clientX-cx,dy=e.clientY-cy,len=Math.hypot(dx,dy),max=39;if(len>max){dx=dx/len*max;dy=dy/len*max}joystick.x=dx/max;joystick.y=dy/max;stick.style.transform=`translate(${dx}px,${dy}px)`}
+    base.addEventListener('pointerdown',e=>{e.preventDefault();e.stopPropagation();active=true;base.setPointerCapture(e.pointerId);move(e)});base.addEventListener('pointermove',e=>{if(active){e.preventDefault();move(e)}});
+    function end(e){if(e)e.preventDefault();active=false;joystick={x:0,y:0};stick.style.transform='translate(0,0)'}base.addEventListener('pointerup',end);base.addEventListener('pointercancel',end);base.addEventListener('lostpointercapture',end);
   }
   setupJoystick();
 
@@ -120,12 +123,14 @@
     buildMiuingStall();
     // Decorative plants
     for(const x of [-10.7,10.7]){cylinder(world,.13,.2,.7,mat('#9b5b42'),x,.35,5.6);for(let i=0;i<5;i++){const leaf=sphere(world,.18,mat('#38b879'),x+Math.cos(i*1.25)*.34,.95+Math.sin(i)*.12,5.6+Math.sin(i*1.25)*.34,1,2.6,.7);leaf.rotation.z=Math.cos(i*1.25)*.6}}
-    // camera drag to rotate around the dance floor
-    let dragging=false,lastX=0;renderer.domElement.addEventListener('pointerdown',e=>{dragging=true;lastX=e.clientX;renderer.domElement.setPointerCapture(e.pointerId)});
-    renderer.domElement.addEventListener('pointermove',e=>{if(!dragging)return;orbitAngle+=(e.clientX-lastX)*.006;lastX=e.clientX;updateCamera()});
-    const stop=()=>dragging=false;renderer.domElement.addEventListener('pointerup',stop);renderer.domElement.addEventListener('pointercancel',stop);
-    renderer.domElement.addEventListener('wheel',e=>{cameraDistance=Math.max(17,Math.min(32,cameraDistance+e.deltaY*.018));updateCamera();e.preventDefault()},{passive:false});
-    window.addEventListener('resize',resize3D);resize3D();animate();
+    // Drag to orbit; pinch to zoom on phones/tablets.
+    const pointers=new Map();let dragging=false,lastX=0,pinchStart=0,pinchDistance=cameraDistance;
+    renderer.domElement.addEventListener('pointerdown',e=>{pointers.set(e.pointerId,{x:e.clientX,y:e.clientY});if(pointers.size===1){dragging=true;lastX=e.clientX}if(pointers.size===2){dragging=false;const a=[...pointers.values()];pinchStart=Math.hypot(a[0].x-a[1].x,a[0].y-a[1].y);pinchDistance=cameraDistance}renderer.domElement.setPointerCapture(e.pointerId)});
+    renderer.domElement.addEventListener('pointermove',e=>{if(!pointers.has(e.pointerId))return;pointers.set(e.pointerId,{x:e.clientX,y:e.clientY});if(pointers.size===2){const a=[...pointers.values()],d=Math.hypot(a[0].x-a[1].x,a[0].y-a[1].y);cameraDistance=Math.max(11,Math.min(34,pinchDistance-(d-pinchStart)*.035));updateCamera()}else if(dragging){orbitAngle+=(e.clientX-lastX)*.006;lastX=e.clientX;updateCamera()}});
+    const stop=e=>{pointers.delete(e.pointerId);if(pointers.size===0)dragging=false;if(pointers.size===1){const only=[...pointers.values()][0];lastX=only.x;dragging=true}};renderer.domElement.addEventListener('pointerup',stop);renderer.domElement.addEventListener('pointercancel',stop);renderer.domElement.addEventListener('lostpointercapture',stop);
+    renderer.domElement.addEventListener('wheel',e=>{cameraDistance=Math.max(11,Math.min(34,cameraDistance+e.deltaY*.018));updateCamera();e.preventDefault()},{passive:false});
+    $('zoomIn').onclick=()=>{cameraDistance=Math.max(11,cameraDistance-2.5);updateCamera()};$('zoomOut').onclick=()=>{cameraDistance=Math.min(34,cameraDistance+2.5);updateCamera()};$('zoomReset').onclick=()=>{cameraDistance=24;orbitAngle=0;updateCamera()};
+    window.addEventListener('resize',resize3D);window.addEventListener('orientationchange',()=>setTimeout(resize3D,250));resize3D();animate();
   }
   function updateCamera(){if(!camera)return;camera.position.set(Math.sin(orbitAngle)*cameraDistance*.72, cameraDistance*.78, Math.cos(orbitAngle)*cameraDistance);camera.lookAt(0,.3,0)}
   function resize3D(){if(!renderer||!camera)return;const w=stage.clientWidth||900,h=stage.clientHeight||570;renderer.setSize(w,h,false);camera.aspect=w/h;camera.updateProjectionMatrix()}
