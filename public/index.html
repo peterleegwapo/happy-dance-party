@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>Happy Dance Party 3D 🪩</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div id="entry" class="entry">
+  <div class="entry-card"><div class="logo">🪩</div><h1>Happy Dance Party 3D</h1><p>今晚一起蹦个开心！</p>
+    <label>你的昵称</label><input id="nickname" maxlength="14" placeholder="给自己起个名字" value="舞池新星">
+    <button id="publicBtn" class="primary">🎉 进入公开舞池</button><small>3D舞池 · 每个公开房间最多30人</small><div id="entryError" class="error"></div>
+  </div>
+</div>
+<div id="game" class="hidden">
+  <header><div class="brand">🪩 <b>HAPPY DANCE 3D</b></div><div class="room-label"><span id="roomTitle">公共蹦迪大厅</span> · <b id="playerCount">1/30</b></div><div class="top-actions"><button id="leaveBtn">离开</button></div></header>
+  <main><section class="stage-wrap">
+    <div class="stage-top"><span>✨ 3D LET'S PARTY ✨</span><span id="roomCodeLabel">公开房间</span></div>
+    <div id="stage3d" aria-label="3D多人舞池"></div>
+    <div class="music-bar"><button id="musicToggle">▶ 播放派对音乐</button><span id="musicStatus">原创电子舞曲 · 点击播放</span><input id="musicVolume" type="range" min="0" max="100" value="40" aria-label="音乐音量"></div>
+    <div class="mobile-hint">手机：左下摇杆移动，右侧按钮跳舞；拖动画面可旋转视角</div>
+    <div class="joystick" id="joystick"><div class="stick" id="stick"></div></div>
+    <div class="mobile-dances"><button data-dance="bounce">🕺</button><button data-dance="spin">💫</button><button data-dance="wave">👋</button><button data-dance="clap">👏</button><button data-dance="robot">🤖</button><button data-dance="hiphop">🧢</button><button data-dance="jump">🚀</button></div>
+  </section>
+  <aside>
+    <div class="panel dance-panel"><h3>💃 舞蹈动作</h3><div class="dance-grid">
+      <button data-dance="bounce">🕺<span>蹦蹦跳</span></button><button data-dance="spin">💫<span>转圈圈</span></button><button data-dance="wave">👋<span>挥挥手</span></button><button data-dance="groove">🎶<span>摇摆舞</span></button><button data-dance="heart">💗<span>比爱心</span></button><button data-dance="clap">👏<span>拍手</span></button><button data-dance="moonwalk">🪩<span>太空步</span></button><button data-dance="robot">🤖<span>机械舞</span></button><button data-dance="hiphop">🧢<span>街舞</span></button><button data-dance="jump">🚀<span>高跳</span></button><button data-dance="cheer">🥳<span>欢呼</span></button><button data-dance="idle">😊<span>休息</span></button>
+    </div></div>
+    <div class="panel customize-panel"><h3>👗 我的造型</h3><div class="custom-controls">
+      <label>角色性别 <select id="gender"><option value="female">女生</option><option value="male">男生</option></select></label>
+      <label>服装颜色 <input id="outfitColor" type="color" value="#ff8fab"></label>
+      <label>发型 <select id="hairStyle"><option value="0">短发</option><option value="1">长发</option><option value="2">卷发</option><option value="3">双马尾</option></select></label>
+      <label>肤色 <select id="skinTone"><option value="0">自然白</option><option value="1">暖肤色</option><option value="2">小麦色</option><option value="3">深肤色</option></select></label>
+      <label>服装款式 <select id="outfitStyle"><option value="0">街头卫衣</option><option value="1">派对礼服</option><option value="2">运动套装</option><option value="3">闪亮舞台服</option></select></label>
+      <label>配饰 <select id="accessory"><option value="none">无</option><option value="crown">皇冠</option><option value="glasses">眼镜</option><option value="headphones">耳机</option></select></label>
+    </div></div>
+    <div class="panel"><h3>👥 舞池玩家 <span id="listCount"></span></h3><div id="playerList" class="player-list"></div></div>
+    <div class="panel chat-panel"><h3>💬 派对聊天</h3><div id="chatLog" class="chat-log"><div class="welcome">欢迎来到舞池！和大家打个招呼吧～</div></div><form id="chatForm"><input id="chatInput" maxlength="100" placeholder="说点什么..."><button>发送</button></form></div>
+  </aside></main><footer>电脑：WASD / 方向键移动 · 手机：摇杆移动 · 选择舞蹈和大家一起嗨！</footer>
+</div>
+<script src="/vendor/three/three.min.js"></script>
+<script src="/socket.io/socket.io.js"></script><script src="game.js"></script>
+</body></html>
