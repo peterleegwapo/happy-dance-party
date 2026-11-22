@@ -8,7 +8,7 @@
 <body>
 <div id="entry" class="entry">
   <div class="entry-card"><div class="logo">🪩</div><h1>Happy Dance Party 3D</h1><p>今晚一起蹦个开心！</p>
-    <label>你的昵称</label><input id="nickname" maxlength="14" placeholder="给自己起个名字" value="舞池新星">
+    <label>你的昵称</label><input id="nickname" maxlength="14" placeholder="给自己起个名字" value="改名">
     <button id="publicBtn" class="primary">🎉 进入公开舞池</button><small>3D舞池 · 每个公开房间最多30人</small><div id="entryError" class="error"></div>
   </div>
 </div>
@@ -17,6 +17,7 @@
   <main><section class="stage-wrap">
     <div class="stage-top"><span>✨ 3D LET'S PARTY ✨</span><span id="roomCodeLabel">公开房间</span></div>
     <div id="stage3d" aria-label="3D多人舞池"></div>
+    <div class="zoom-controls" aria-label="人物缩放"><button id="zoomIn" type="button" aria-label="放大人物">＋</button><button id="zoomOut" type="button" aria-label="缩小人物">－</button><button id="zoomReset" type="button" aria-label="恢复视角">⟲</button></div>
     <div class="music-bar"><button id="musicToggle">▶ 播放派对音乐</button><span id="musicStatus">原创电子舞曲 · 点击播放</span><input id="musicVolume" type="range" min="0" max="100" value="40" aria-label="音乐音量"></div>
     <div class="mobile-hint">手机：左下摇杆移动，右侧按钮跳舞；拖动画面可旋转视角</div>
     <div class="joystick" id="joystick"><div class="stick" id="stick"></div></div>
